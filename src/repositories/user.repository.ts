@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import Iuser from "../interfaces/user"
 import User from "../models/user.model";
-import { Order } from "../models/order.model";
+import { Cart } from "../models/cart.model";
 
 @injectable()
 export class UserReppository {
@@ -13,8 +13,15 @@ export class UserReppository {
         return User.findByPk(id);
     }
 
-    async createUser({ email, password,roleId }: Iuser): Promise<User> {
-        return User.create({ email, password,roleId });
+    async createUser({ email, password, roleId }: Iuser): Promise<User> {
+    const user = await User.create({ email, password, roleId });
+    const userTocart = await User.findByPk(user.id)
+    if (userTocart !== null){
+    const userId = userTocart.id
+        await Cart.create({ userId })
+    }
+    
+    return user 
     }
     async deleteUser(id: number): Promise<void> {
         await User.destroy({ where: { id } });
